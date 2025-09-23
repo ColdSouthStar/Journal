@@ -5,9 +5,11 @@
 <meta charset="UTF-8">
 <html lang="zh-CN">
 <head>
-	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 	<title>Journal</title>
 	<style>
+		@media (orientation: portrait) { /* 竖屏样式 */ }
+		@media (orientation: landscape) { /* 横屏样式 */ }
 
 		@font-face {
 			font-family: "FangZheng";
@@ -16,24 +18,28 @@
 			font-style: normal;
 		}
 
+		/* body 只负责背景 */
 		html, body {
 			margin: 0;
 			padding: 0;
+			height: 100%;
 			background-image: url('./bg.jpg');
 			background-size: cover;
 			background-position: center;
 			background-repeat: no-repeat;
-			overflow: hidden; /* 如果你用 scrollCanvas 容器滚动 */
+			overflow: hidden; /* 如果你用 scrollCanvas 容器滚动 禁止背景滚动*/
 		}
-
-		body{
-			position: relative;			
-			overflow-y: auto; /* 允许垂直滚动 */
-			overflow-x: auto; /* 允许水平滚动 */
-			-webkit-overflow-scrolling: touch; /* 移动端惯性滚动 */
-			min-height: 100vh; /* 保证至少一屏高度 */
-			margin: 0;
-			padding: 0;
+		
+		/* 真正的滚动容器 */
+		#scrollCanvas {
+			position: relative;
+			min-width: 100vw;
+			min-height: 100vh;
+			width: max-content;    /* 根据内容宽度撑开，触发横向滚动 */
+			height: max-content;   /* 根据内容高度撑开，触发纵向滚动 */
+			overflow: auto;        /* 双向滚动 */
+			-webkit-overflow-scrolling: touch;
+			box-sizing: border-box;
 		}
 
 		.row {
@@ -59,9 +65,9 @@
 		}
 		#table{
 			position: absolute;
-			width: 85vh;
+			width: 60vw;
 			top: 25vh;
-			right: 5vh;
+			right: 5vw;
 		}
 		#caption{
 			position: relative;
@@ -134,8 +140,9 @@
 			text-indent: 2rem;
 			z-index: 1;
 			font-family: "FangZheng", serif;
+			-webkit-overflow-scrolling: touch;
 		}
-		
+
 		#dateGrid{
 			position: relative;
 			overflow-x: auto; /* 允许水平滚动 */
@@ -143,17 +150,20 @@
 			-webkit-overflow-scrolling: touch; /* 移动端惯性滚动 */
 			display: flex;
 			flex-direction: column;
-			width: 70vh;
+			width: 90vw;
+			max-width: 1200px;
 		}
 		#dateGrid{
 			position: relative;
-			width: 70vh;
+			width: 90vw;
+			-webkit-overflow-scrolling: touch;
 		}
 		.dateLine{
 			position: relative;
 			display: flex;
 			flex-direction: row;
-			width: 70vh;
+			width: 90vw;
+			-webkit-overflow-scrolling: touch;
 		}
 		.dateBlock{
 			position: relative;
@@ -163,19 +173,20 @@
 			border-bottom: none;
 			border-right: none;
 			box-sizing: border-box;
+						-webkit-overflow-scrolling: touch;
 		}
 		.dateLine:last-child .dateBlock {
-			border-bottom: 1px solid rgba(84, 13, 13, 0.67);
+			border-bottom: 1px solid rgba(84, 13, 13, 0.67);			-webkit-overflow-scrolling: touch;
 		}
 		.dateBlock:last-child {
-			border-right: 1px solid rgba(84, 13, 13, 0.67);
+			border-right: 1px solid rgba(84, 13, 13, 0.67);			-webkit-overflow-scrolling: touch;
 		}
 		.dateBlock > span:nth-child(1){
 			position: absolute;
 			top:2px;
 			left:2px;
 			color: rgba(84, 13, 13, 0.8);
-			font-size: 2rem;
+			font-size: 2rem;			-webkit-overflow-scrolling: touch;
 		}
 		.dateBlock > span:nth-child(2){
 			position: absolute;
@@ -188,11 +199,12 @@
 			color: rgba(84, 13, 13, 0.8);
 			font-weight: bold;
 			font-size: 1.0rem;
-			word-break: break-all;
+			word-break: break-all;			-webkit-overflow-scrolling: touch;
 		}
 	</style>
 </head>
 <body>
+	<div id="scrollCanvas">
 	<div id ="time"><p>19</p><span class="sep">:</span><p>00</p></div>
 	<div id ="table">
 		<div id = "caption">
@@ -490,5 +502,13 @@ if ('serviceWorker' in navigator) {
 				target.innerText = text;
 		}
 	}
+		function handleLayout(){
+			document.documentElement.style.setProperty('--vw', `${window.innerWidth}px`);
+			document.documentElement.style.setProperty('--vh', `${window.innerHeight}px`);
+			// 重新计算或刷新任何画布/滚动容器尺寸
+			}
+			window.addEventListener('resize', handleLayout);
+			window.addEventListener('orientationchange', handleLayout);
+			handleLayout();
 </script>
 </html>
